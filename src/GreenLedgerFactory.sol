@@ -10,6 +10,7 @@ contract GreenLedgerFactory {
     function deployAssetToken(string calldata name,string calldata symbol,bytes32 assetId,bytes32 titleHash,bytes32 decisionHash,uint256 surfaceSqFt,address registry) external returns(address tokenAddress){
         require(registry==attestationRegistry,"Invalid registry");
         RealEstateToken token=new RealEstateToken(name,symbol,assetId,titleHash,decisionHash,surfaceSqFt,registry);
+        token.transferOwnership(msg.sender);
         tokenAddress=address(token);
         emit AssetTokenCreated(assetId,tokenAddress,msg.sender);
     }
