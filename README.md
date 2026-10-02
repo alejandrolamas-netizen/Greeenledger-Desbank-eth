@@ -2,21 +2,23 @@
 
 **EmergentSoft · RWA Tokenization & Financial Infrastructure**
 
-## What it is
+## Status
 
-This repository is the personal-account destination for the Ethereum/EVM adaptation of GreenLedger / Desbank. The XRPL original is intentionally kept separate and untouched.
+**EVM implementation / Base track.**
 
-## Business problem
+This repository contains the Ethereum-compatible implementation of the GreenLedger / Desbank tokenization architecture, with Base / Base Sepolia deployment tooling.
+
+## Purpose
 
 Enterprise RWA workflows need auditable tokenization, AI decision attestations and reproducible verification across an EVM settlement environment.
 
-## Product capabilities
+## Implemented scope
 
 - AI-attestation-gated asset tokenization
 - ERC-20 RWA asset representation
 - Surface-area / supply invariant enforcement
-- Public verification tooling
-- Base / Base Sepolia deployment workflow
+- Deployment and verification tooling
+- Automated tests
 
 ## Architecture
 
@@ -24,24 +26,29 @@ Enterprise RWA workflows need auditable tokenization, AI decision attestations a
 
 ## Network tracks
 
-- **XRPL Original** — frozen / untouched
+- **XRPL Original** — separate / frozen workstream
 - **Ethereum / EVM** — this repository; Base / Base Sepolia track
-- **Open House** — separate lightweight adaptation
 - **Arbitrum** — separate network adaptation
 
 ## Evidence policy
 
-Source code, tests and verification scripts establish the implementation and its reproducible verification procedure. They do **not** by themselves establish that a Base Sepolia deployment exists.
+Source code, tests and deployment tooling establish implementation evidence. They do **not** by themselves establish that a live Base or Base Sepolia deployment exists.
 
-Only publish contract addresses, transaction hashes, block numbers and explorer links after those values have been independently produced and checked on-chain.
+Only publish contract addresses, transaction hashes, block numbers and explorer links after independently checking the corresponding chain.
+
+The repository should also not be interpreted as evidence of a regulated financial service, securities offering, investment product or legal ownership interest.
+
+## Attestation model
+
+The current implementation associates an asset with an AI decision hash before tokenization. Before production financial use, the attestation model should be extended with explicit history/versioning, model provenance, attestor identity and governance controls as required by the deployment context.
 
 ## Commercial role
 
-GreenLedger / Desbank provides RWA tokenization and financial-rail infrastructure for enterprise financing, asset representation and governed digital-asset workflows.
+GreenLedger / Desbank provides technical infrastructure for RWA tokenization and governed digital-asset workflows.
 
 ## Security & IP
 
-See [`SECURITY.md`](SECURITY.md) and [`LICENSE`](LICENSE). Third-party components remain subject to their respective licenses.
+See `SECURITY.md` and `LICENSE`.
 
 ## Owner
 
