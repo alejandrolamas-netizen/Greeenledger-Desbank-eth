@@ -11,7 +11,7 @@ contract SeedDemoAssetScript is Script {
 
     uint256 constant BASE_SEPOLIA_CHAIN_ID = 84532;
     bytes32 constant ASSET_ID = keccak256("GL-BASE-SEPOLIA-SYNTHETIC-001");
-    bytes32 constant TITLE_HASH = keccak256("SYNTHETIC DEMO — NOT A PROPERTY TITLE");
+    bytes32 constant TITLE_HASH = keccak256("SYNTHETIC DEMO - NOT A PROPERTY TITLE");
     string constant MODEL_VERSION = "SYNTHETIC-DEMO-NOT-A-VALUATION-MODEL";
     string constant RISK_GRADE = "TEST-ONLY";
     uint256 constant TEST_VALUE_UNITS = 1;
