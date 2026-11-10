@@ -4,52 +4,45 @@
 
 ## Status
 
-**EVM implementation / Base track.**
+**EVM implementation track — pre-commercial engineering baseline.**
 
-This repository contains the Ethereum-compatible implementation of the GreenLedger / Desbank tokenization architecture, with Base / Base Sepolia deployment tooling.
+This repository contains an Ethereum-compatible implementation and Base / Base Sepolia deployment tooling. Source code and scripts do not establish a live deployment, customer use, independent security audit or production readiness.
 
-## Purpose
+## Implemented baseline
 
-Enterprise RWA workflows need auditable tokenization, AI decision attestations and reproducible verification across an EVM settlement environment.
+- AI-attestation-gated ERC-20 asset tokenization
+- surface-area / supply invariant logic
+- deployment and verification scripts
+- automated Solidity tests
 
-## Implemented scope
+## Important security status
 
-- AI-attestation-gated asset tokenization
-- ERC-20 RWA asset representation
-- Surface-area / supply invariant enforcement
-- Deployment and verification tooling
-- Automated tests
+The current Ethereum/Base contracts do **not** yet have the full lifecycle and governance controls present in the Arbitrum track. In particular, the registry currently overwrites the attestation keyed by asset ID and does not yet implement append-only history, expiry, revocation or an emergency tokenization pause. The factory does not yet enforce one token per asset ID. See [security parity plan](docs/12-security-parity-plan.md).
+
+Do not claim cross-network security parity until the controls are implemented, tested and reviewed independently in this repository.
 
 ## Architecture
 
-`Real-World Asset → AIAttestationRegistry → GreenLedgerFactory → RealEstateToken → Verification`
+Real-world asset evidence → attestation registry → factory → ERC-20 representation → independent verification.
 
-## Network tracks
+A token or metadata hash is not, by itself, proof of legal title, valuation, beneficial ownership or a right to cash flows.
 
-- **XRPL Original** — separate / frozen workstream
-- **Ethereum / EVM** — this repository; Base / Base Sepolia track
-- **Arbitrum** — separate network adaptation
+## Network separation
 
-## Evidence policy
+- **XRPL:** separate historical workstream.
+- **Ethereum / Base:** this repository.
+- **Arbitrum:** separate implementation at [GreenLedger-Desbank-Arbitrum](https://github.com/alejandrolamas-netizen/GreenLedger-Desbank-Arbitrum).
 
-Source code, tests and deployment tooling establish implementation evidence. They do **not** by themselves establish that a live Base or Base Sepolia deployment exists.
+## Commercial scope
 
-Only publish contract addresses, transaction hashes, block numbers and explorer links after independently checking the corresponding chain.
+The intended initial offer is enterprise software and implementation services for controlled RWA workflow pilots. No active liquidity, lending, yield, custody, exchange, redemption, bank integration or regulated financial service is claimed.
 
-The repository should also not be interpreted as evidence of a regulated financial service, securities offering, investment product or legal ownership interest.
-
-## Attestation model
-
-The current implementation associates an asset with an AI decision hash before tokenization. Before production financial use, the attestation model should be extended with explicit history/versioning, model provenance, attestor identity and governance controls as required by the deployment context.
-
-## Commercial role
-
-GreenLedger / Desbank provides technical infrastructure for RWA tokenization and governed digital-asset workflows.
+See [commercial readiness](docs/13-commercial-readiness.md).
 
 ## Security & IP
 
-See `SECURITY.md` and `LICENSE`.
+See SECURITY.md and LICENSE. Independent security review and customer-specific legal assessment are required before production financial use.
 
 ## Owner
 
-Alejandro Lamas — Founder & CEO, EmergentSoft
+EmergentSoft
