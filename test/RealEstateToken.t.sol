@@ -2,44 +2,71 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
+import "../src/AIAttestationRegistry.sol";
+import "../src/GreenLedgerFactory.sol";
 import "../src/RealEstateToken.sol";
 
-contract MockAttestationRegistry is IAIAttestation {
-    mapping(bytes32 => mapping(bytes32 => bool)) public attestations;
-    address public authorizedAttester;
-    constructor(address _attester) { authorizedAttester = _attester; }
-    function record(bytes32 aId, bytes32 dHash) external { attestations[aId][dHash] = true; }
-    function isAttested(bytes32 aId, bytes32 dHash) external view returns (bool, address) { return (attestations[aId][dHash], authorizedAttester); }
-}
-
 contract RealEstateTokenTest is Test {
-    RealEstateToken public token;
-    MockAttestationRegistry public registry;
-    bytes32 constant ASSET_ID = keccak256("GL-BUE-001");
-    bytes32 constant TITLE_HASH = keccak256("Manhattan Commercial Tower Title Deed");
-    bytes32 constant DECISION_HASH = keccak256("QAIzero-RWA-v1.0|A|48500000");
-    uint256 constant SURFACE_SQFT = 10_000;
-    address owner = address(0x1);
-    address attester = address(0x2);
+    AIAttestationRegistry registry;
+    GreenLedgerFactory factory;
+    RealEstateToken token;
+    address deployer = address(this);
+
+    bytes32 assetId = keccak256("GL-BUE-001");
+    bytes32 decisionHash = keccak256("decision-001");
 
     function setUp() public {
-        registry = new MockAttestationRegistry(attester);
-        vm.prank(owner);
-        token = new RealEstateToken("GreenLedger Buenos Aires", "GL-SF", ASSET_ID, TITLE_HASH, DECISION_HASH, SURFACE_SQFT, address(registry));
+        registry = new AIAttestationRegistry();
+        factory = new GreenLedgerFactory(address(registry));
+        registry.attest(assetId, decisionHash, "QAIzero-RWA-v1.0", "A", 48_500_000 * 1e18);
+        address tokenAddress = factory.deployAssetToken(
+            "GreenLedger Buenos Aires", "GL-SF", assetId, keccak256("title"),
+            decisionHash, 50_000, address(registry)
+        );
+        token = RealEstateToken(tokenAddress);
     }
 
-    function test_RevertWhen_MintingWithoutAttestation() public {
-        vm.prank(owner);
+    function testCannotTokenizeWithoutMatchingAttestation() public {
+        AIAttestationRegistry other = new AIAttestationRegistry();
+        RealEstateToken unverified = new RealEstateToken(
+            "Unverified", "UNV", assetId, keccak256("title"), keccak256("wrong"), 50_000, address(other)
+        );
         vm.expectRevert(RealEstateToken.AttestationNotFound.selector);
-        token.executeTokenization(owner);
+        unverified.executeTokenization(address(this));
     }
 
-    function test_EnforcesInvariant_ExactSupplyMatchesSurfaceArea() public {
-        registry.record(ASSET_ID, DECISION_HASH);
-        vm.prank(owner);
-        token.executeTokenization(owner);
-        assertEq(token.totalSupply(), SURFACE_SQFT * 10**18);
-        assertEq(token.totalSupply() / 10**18, token.registeredSurfaceSqFt());
+    function testTokenizationMatchesSurfaceInvariant() public {
+        token.executeTokenization(deployer);
+        assertEq(token.totalSupply(), 50_000 * 1e18);
+        assertEq(token.balanceOf(deployer), 50_000 * 1e18);
         assertTrue(token.isTokenized());
+    }
+
+    function testCannotTokenizeTwice() public {
+        token.executeTokenization(deployer);
+        vm.expectRevert(RealEstateToken.AlreadyTokenized.selector);
+        token.executeTokenization(deployer);
+    }
+
+    function testEmergencyPauseBlocksNewTokenization() public {
+        registry.setTokenizationPaused(true);
+        vm.expectRevert(RealEstateToken.TokenizationPaused.selector);
+        token.executeTokenization(deployer);
+        registry.setTokenizationPaused(false);
+        token.executeTokenization(deployer);
+        assertTrue(token.isTokenized());
+    }
+
+    function testZeroRecipientIsRejected() public {
+        vm.expectRevert(RealEstateToken.InvalidRecipient.selector);
+        token.executeTokenization(address(0));
+    }
+
+    function testFactoryRejectsDuplicateAssetId() public {
+        vm.expectRevert(abi.encodeWithSelector(GreenLedgerFactory.AssetAlreadyDeployed.selector, assetId, address(token)));
+        factory.deployAssetToken(
+            "Duplicate", "DUP", assetId, keccak256("title-2"),
+            decisionHash, 50_000, address(registry)
+        );
     }
 }

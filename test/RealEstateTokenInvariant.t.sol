@@ -7,6 +7,7 @@ import "../src/RealEstateToken.sol";
 contract MockAttestationRegistryForTest is IAIAttestation {
     mapping(bytes32 => mapping(bytes32 => bool)) public attestations;
     address public authorizedAttester;
+    bool public tokenizationPaused;
     constructor(address a){authorizedAttester=a;}
     function record(bytes32 assetId,bytes32 decisionHash) external {attestations[assetId][decisionHash]=true;}
     function isAttested(bytes32 assetId,bytes32 decisionHash) external view returns(bool,address){return(attestations[assetId][decisionHash],authorizedAttester);}
